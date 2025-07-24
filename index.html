@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홋카이도 인터랙티브 여행 가이드</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>홋카이도 인터랙티브 여행 가이드 🗺️</h1>
+            <div id="filter-container">
+                <button class="filter-btn active" data-filter="전체"># 전체</button>
+                <button class="filter-btn" data-filter="삿포로"># 삿포로</button>
+                <button class="filter-btn" data-filter="오타루"># 오타루</button>
+                <button class="filter-btn" data-filter="하코다테"># 하코다테</button>
+                <button class="filter-btn" data-filter="비에이/후라노"># 비에이/후라노</button>
+                <button class="filter-btn" data-filter="도야/노보리베츠"># 도야/노보리베츠</button>
+                <button class="filter-btn" data-filter="아사히카와/북부"># 아사히카와/북부</button>
+                <button class="filter-btn" data-filter="동부"># 동부</button>
+            </div>
+            <div id="search-container">
+                <input type="text" id="search-input" placeholder="명소 검색...">
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div id="map"></div>
+            <div id="info-panel">
+                <div class="welcome-message">
+                    <h2>홋카이도에 오신 것을 환영합니다!</h2>
+                    <p>지도 위의 마커를 클릭하거나<br>상단의 필터를 이용해<br>여행지를 탐색해보세요.</p>
+                </div>
+                <div id="info-content" class="hidden">
+                    <h2 id="info-title"></h2>
+                    <p id="info-description"></p>
+                    <p id="info-hours" class="info-detail"></p>
+                    <p id="info-admission" class="info-detail"></p>
+                    <p id="info-website" class="info-detail"></p>
+                    <p id="info-route-link" class="info-detail"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
