@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터랙티브 홋카이도 여행 플래너</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Hokkaido Autumn -->
+    <!-- Application Structure Plan: A single-page, vertical-scrolling application designed for intuitive exploration. The structure begins with a hero section for immediate context, followed by a 'Key Information Dashboard' using interactive cards for essential pre-trip knowledge (weather, transport, food). The core is an 'Interactive Itinerary Timeline' with day-by-day navigation, allowing users to jump to specific plans. An 'Interactive Budget Calculator' with a dynamic chart provides practical utility. This non-linear, task-oriented structure was chosen over a simple document replication to empower users to quickly access the information they need and engage with the content (e.g., personalizing their budget), enhancing usability and comprehension. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Transportation cost analysis (JR Pass vs. individual tickets). -> Goal: Compare. -> Viz/Method: Bar Chart (Chart.js/Canvas). -> Interaction: Static visualization for clear comparison. -> Justification: A bar chart provides an immediate, powerful visual argument that is easier to grasp than a table of numbers.
+        - Report Info: Estimated budget breakdown. -> Goal: Analyze & Personalize. -> Viz/Method: Donut Chart (Chart.js/Canvas) with HTML input sliders. -> Interaction: Sliders update JS variables, which in turn recalculate totals and update the chart data and labels dynamically. -> Justification: Makes the budget section actionable and personalized, transforming passive information into a useful planning tool.
+        - Report Info: Daily itinerary. -> Goal: Organize & Guide. -> Viz/Method: Vertical timeline created with structured HTML/CSS (Tailwind). -> Interaction: Top navigation buttons with smooth-scroll JS to jump between days. -> Justification: Provides a clear, chronological flow while allowing non-linear access, which is ideal for checking a specific day's plan without scrolling through the entire document.
+        - Report Info: Weather/Clothing, Food Guide. -> Goal: Inform. -> Viz/Method: Styled HTML cards with Unicode icons. -> Interaction: None. -> Justification: Cards break down dense text into digestible, visually appealing chunks. Icons enhance scannability.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F8F7F4;
+            color: #4A4A4A;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+        }
+        .nav-button.active {
+            background-color: #D48C70;
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+        .nav-button:not(.active):hover {
+            background-color: #EAE3D9;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 1.50rem;
+            bottom: -1.25rem;
+            width: 2px;
+            background-color: #EAE3D9;
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: calc(1rem - 0.4rem);
+            top: 1.50rem;
+            height: 1rem;
+            width: 1rem;
+            background-color: #D48C70;
+            border-radius: 9999px;
+            border: 2px solid #FFFFFF;
+        }
+        .margin-left-30{
+            margin-left: 30px;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="py-12 bg-white relative">
+        <div class="absolute top-6 left-6">
+            <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-[#3C3633] text-white rounded-full hover:bg-[#2C2520] transition-colors duration-300 text-sm font-medium">
+                🗺️ 인터랙티브 지도
+            </a>
+        </div>
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#3C3633] mb-2">황금빛 수확의 계절, 홋카이도</h1>
+            <p class="text-lg text-gray-600">2025년 9월 14일 ~ 9월 20일, 6박 7일간의 인터랙티브 여행 계획</p>
+        </div>
+    </header>
+
+    <nav class="sticky top-0 bg-[#F8F7F4]/80 backdrop-blur-sm z-10 py-4 shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-2 md:space-x-4">
+                <a href="#info" class="nav-button px-3 py-2 text-sm md:px-4 md:text-base rounded-full">핵심 정보</a>
+                <a href="#itinerary" class="nav-button px-3 py-2 text-sm md:px-4 md:text-base rounded-full">전체 일정</a>
+                <a href="#budget" class="nav-button px-3 py-2 text-sm md:px-4 md:text-base rounded-full">예상 경비</a>
+                <a href="#attractions" class="nav-button px-3 py-2 text-sm md:px-4 md:text-base rounded-full">주요 명소</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-12">
+
+        <section id="info" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#3C3633]">홋카이도 탐험 브리핑</h2>
+            <p class="text-center text-gray-600 mb-8">여행을 떠나기 전, 알아두면 쓸모있는 홋카이도의 핵심 정보입니다. 날씨, 교통, 그리고 미식 정보를 확인하여 더 완벽한 여행을 준비하세요.</p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">🌦️ 9월 날씨와 옷차림</h3>
+                    <p class="mb-4 text-sm">한국의 10월 중순과 비슷하며, 일교차가 큽니다. 낮에는 온화하지만 아침저녁은 쌀쌀하므로 여러 겹 겹쳐 입는 '레이어링' 전략이 필수입니다.</p>
+                    <div class="space-y-2 text-sm">
+                        <p>평균 기온: 18.1℃</p>
+                        <p>평균 최고: 22.4℃ / 평균 최저: 14.2℃</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <p class="font-semibold mb-2">준비물 체크리스트:</p>
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            <li>👕 반소매 & 긴소매 셔츠</li>
+                            <li>🧥 얇은 스웨터 또는 가디건</li>
+                            <li>🌬️ 방수/방풍 기능 바람막이</li>
+                            <li>👟 편한 운동화</li>
+                            <li>🧣 스카프, 우산, 선글라스</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">🚆 교통 전략 분석</h3>
+                     <p class="mb-4 text-sm">이번 여정은 삿포로에서 하코다테로 남하하는 단방향 동선으로, JR 레일 패스 구매보다 개별 티켓 발권이 훨씬 경제적입니다. 아래 차트에서 비용 차이를 확인하세요.</p>
+                    <div class="chart-container h-64">
+                        <canvas id="transportChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card p-6 md:col-span-2 lg:col-span-1">
+                    <h3 class="text-xl font-bold mb-4">🍜 가을의 미식 가이드</h3>
+                    <p class="mb-4 text-sm">수확의 계절 홋카이도는 미식의 천국입니다. 여행 중 꼭 맛봐야 할 대표 음식들을 소개합니다.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="font-bold">징기스칸</p>
+                            <p class="text-xs text-gray-500">삿포로의 소울 푸드, 신선한 양고기 구이</p>
+                        </div>
+                        <div>
+                            <p class="font-bold">카이센동 (해산물 덮밥)</p>
+                            <p class="text-xs text-gray-500">하코다테 아침 시장의 신선함이 담긴 한 그릇</p>
+                        </div>
+                        <div>
+                            <p class="font-bold">스시</p>
+                            <p class="text-xs text-gray-500">항구 도시 오타루에서 맛보는 장인의 손맛</p>
+                        </div>
+                        <div>
+                            <p class="font-bold">삿포로 어텀 페스트</p>
+                            <p class="text-xs text-gray-500">홋카이도 전역의 음식이 모이는 미식 축제</p>
+                        </div>
+                         <div>
+                            <p class="font-bold">유제품 & 디저트</p>
+                            <p class="text-xs text-gray-500">진한 소프트 아이스크림과 달콤한 과자들</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="itinerary" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#3C3633]">7일간의 여정</h2>
+             <p class="text-center text-gray-600 mb-8">삿포로에서 시작해 하코다테에서 끝나는 6박 7일간의 상세 일정입니다. 아래 버튼을 클릭하여 각 날짜별 계획을 확인해보세요.</p>
+            <div class="flex justify-center flex-wrap gap-2 mb-8">
+                <button data-day="1" class="day-nav-btn nav-button px-4 py-2 rounded-full active">1일차</button>
+                <button data-day="2" class="day-nav-btn nav-button px-4 py-2 rounded-full">2일차</button>
+                <button data-day="3" class="day-nav-btn nav-button px-4 py-2 rounded-full">3일차</button>
+                <button data-day="4" class="day-nav-btn nav-button px-4 py-2 rounded-full">4일차</button>
+                <button data-day="5" class="day-nav-btn nav-button px-4 py-2 rounded-full">5일차</button>
+                <button data-day="6" class="day-nav-btn nav-button px-4 py-2 rounded-full">6일차</button>
+                <button data-day="7" class="day-nav-btn nav-button px-4 py-2 rounded-full">7일차</button>
+            </div>
+
+            <div id="itinerary-content" class="space-y-8">
+            </div>
+        </section>
+        
+        <section id="budget" class="mb-16 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#3C3633]">나만의 예산 플래너</h2>
+            <p class="text-center text-gray-600 mb-8">여행 경비를 시각적으로 분석하고, 직접 조정하며 나만의 예산을 계획해보세요. 숙박과 식비 슬라이더를 움직여 총 예상 경비의 변화를 확인할 수 있습니다.</p>
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">예상 경비 항목 (1인 기준)</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="accommodationSlider" class="block text-sm font-medium text-gray-700">숙박 (1박당)</label>
+                            <input id="accommodationSlider" type="range" min="5000" max="30000" value="15000" step="1000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-right text-sm font-semibold text-[#D48C70]"><span id="accommodationValue">15,000</span>엔</div>
+                        </div>
+                        <div>
+                            <label for="foodSlider" class="block text-sm font-medium text-gray-700">식비 (1일당)</label>
+                            <input id="foodSlider" type="range" min="3000" max="10000" value="6500" step="500" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-right text-sm font-semibold text-[#D48C70]"><span id="foodValue">6,500</span>엔</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-bold">총 예상 경비:</span>
+                            <span id="totalBudgetValue" class="text-2xl font-bold text-[#3C3633]"></span>
+                        </div>
+                         <p class="text-xs text-gray-500 mt-2 text-right">*항공권 제외, 1인 기준</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <div class="chart-container h-80">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="attractions" class="scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-[#3C3633]">주요 명소 정보</h2>
+             <p class="text-center text-gray-600 mb-8">여행 중 방문하게 될 주요 명소들의 운영 시간과 요금 정보입니다. 방문 전 공식 홈페이지에서 최신 정보를 다시 확인하는 것을 권장합니다.</p>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-16 py-6">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-500">
+            <p>이 페이지는 제공된 여행 계획서를 바탕으로 생성된 인터랙티브 웹 애플리케이션입니다.</p>
+            <p>&copy; 2025 Interactive Hokkaido Trip Planner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const itineraryData = [
+            {
+                day: 1,
+                date: "9/14 (일)",
+                title: "삿포로 도착 & 어텀 페스트",
+                summary: "신치토세 공항 도착 후 삿포로로 이동, 저녁에는 홋카이도 최대 미식 축제 '삿포로 어텀 페스트'에서 여행의 시작을 축하합니다.",
+                timeline: [
+                    { time: "오후", icon: "✈️", activity: "신치토세 공항 도착 및 입국", details: "JR 쾌속 에어포트 열차로 삿포로역 이동 (약 40분, 1,150엔). 숙소 체크인." },
+                    { time: "저녁", icon: "🍜", activity: "삿포로 어텀 페스트 탐방", details: "오도리 공원에서 홋카이도 전역의 미식을 맛보며 저녁 식사. (입장 무료, 음식값 별도)" }
+                ]
+            },
+            {
+                day: 2,
+                date: "9/15 (월)",
+                title: "비에이 & 후라노 일일 투어",
+                summary: "삿포로에서 출발하는 일일 버스 투어를 통해 홋카이도의 광활하고 아름다운 대자연의 정수를 만끽하는 날입니다.",
+                timeline: [
+                    { time: "오전", icon: "🚍", activity: "일일 버스 투어 시작", details: "삿포로역 근처에서 출발. (사전 예약 필수, 약 7,000~9,000엔)" },
+                    { time: "낮", icon: "🏞️", activity: "핵심 명소 탐방", details: "패치워크 로드, 사계채의 언덕, 청의 호수, 흰수염 폭포, 팜 도미타 등 방문." },
+                    { time: "저녁", icon: "🌃", activity: "삿포로 복귀 및 휴식", details: "약 12시간 투어 후 삿포로 도착. 스스키노 또는 어텀 페스트에서 저녁 식사." }
+                ]
+            },
+            {
+                day: 3,
+                date: "9/16 (화)",
+                title: "오타루 당일치기 여행",
+                summary: "삿포로에서 가까운 항구 도시 오타루로 떠나 운하의 낭만과 유리 공예, 오르골의 멜로디에 흠뻑 빠져보는 하루입니다.",
+                timeline: [
+                    { time: "오전", icon: "🚆", activity: "오타루 이동 및 운하 산책", details: "JR 하코다테 본선 이용 (약 35분, 750엔). 오타루 운하 및 운하 크루즈 즐기기." },
+                    { time: "오후", icon: "🍣", activity: "사카이마치도리 & 스시", details: "기타이치 가라스, 오르골당 구경. '스시야도리'에서 신선한 스시로 점심 식사." },
+                    { time: "저녁", icon: "🌆", activity: "삿포로 복귀", details: "옛 테미야선 철길을 따라 역으로 이동 후 삿포로로 귀환. 저녁은 미소라멘 또는 스프카레 추천." }
+                ]
+            },
+            {
+                day: 4,
+                date: "9/17 (수)",
+                title: "도야호의 장엄함",
+                summary: "삿포로를 떠나 거대한 칼데라 호수 도야로 이동합니다. 웅장한 자연과 호수 위 불꽃놀이가 기다립니다.",
+                timeline: [
+                    { time: "오전", icon: "➡️", activity: "도야로 이동", details: "JR 특급 호쿠토 탑승 (약 2시간, 6,690엔). 도야역에서 버스로 온천가 이동 후 호텔 체크인." },
+                    { time: "오후", icon: "🌋", activity: "화산 지형 탐험", details: "우스잔 로프웨이를 타고 활화산 정상에서 도야호의 파노라마 감상." },
+                    { time: "저녁", icon: "🎆", activity: "도야호 롱런 불꽃놀이 & 온천", details: "매일 밤 8시 45분, 호수 위에서 펼쳐지는 불꽃놀이 감상 (유람선 탑승 추천). 이후 온천에서 휴식." }
+                ]
+            },
+            {
+                day: 5,
+                date: "9/18 (목)",
+                title: "하코다테와 백만 불짜리 야경",
+                summary: "홋카이도 남쪽 끝, 하코다테로 여정을 이어갑니다. 세계 3대 야경으로 꼽히는 하코다테산의 야경이 하이라이트입니다.",
+                timeline: [
+                    { time: "오전", icon: "♨️", activity: "도야호에서의 여유", details: "온천욕 또는 호숫가 산책 후 체크아웃. JR 도야역으로 이동." },
+                    { time: "오후", icon: "🚆", activity: "하코다테로 이동", details: "JR 특급 호쿠토 탑승 (약 1시간 50분, 5,150엔). 하코다테 도착 후 숙소 체크인." },
+                    { time: "저녁", icon: "🌉", activity: "하코다테산 야경", details: "일몰 30분 전 로프웨이로 정상 도착. '백만 불짜리 야경' 감상 후 베이 에어리어에서 저녁 식사." }
+                ]
+            },
+            {
+                day: 6,
+                date: "9/19 (금)",
+                title: "하코다테 역사 & 미식 탐방",
+                summary: "노면전차를 타고 하코다테의 상징들을 둘러봅니다. 활기찬 아침 시장, 별 모양 요새, 이국적인 언덕길을 모두 경험합니다.",
+                timeline: [
+                    { time: "오전", icon: "🦑", activity: "하코다테 아침 시장", details: "신선한 카이센동으로 아침 식사. 명물 '오징어 낚시' 체험." },
+                    { time: "오후", icon: "⭐", activity: "고료카쿠 공원 & 타워", details: "독특한 별 모양 요새 산책 및 타워 전망대에서 전경 감상." },
+                    { time: "늦은 오후", icon: "⛪", activity: "모토마치 언덕 산책", details: "이국적인 서양식 건축물들이 늘어선 언덕길을 따라 낭만적인 시간 보내기. (시덴 1일권 600엔 추천)" }
+                ]
+            },
+            {
+                day: 7,
+                date: "9/20 (토)",
+                title: "마지막 여운과 출국",
+                summary: "비행기 시간에 맞춰 하코다테에서의 마지막 시간을 보낸 후, 7일간의 추억을 안고 공항으로 이동합니다.",
+                timeline: [
+                    { time: "오전", icon: "🛍️", activity: "자유 시간", details: "아침 시장에서 기념품 구매, 하코다테 명물 시오라멘 맛보기 등 여유로운 시간." },
+                    { time: "출국", icon: "🛫", activity: "하코다테 공항으로 이동", details: "하코다테역 앞에서 공항 셔틀버스로 이동 (약 20분). 출국 수속." }
+                ]
+            }
+        ];
+
+        const attractionsData = [
+            { name: "삿포로 어텀 페스트", hours: "10:00-20:30 (변동 가능)", fee: "무료 입장 (음식값 별도)" },
+            { name: "비에이/후라노 투어", hours: "약 12시간 소요", fee: "약 7,000~9,000엔" },
+            { name: "도야호 불꽃놀이", hours: "20:45-21:05", fee: "무료 관람 (유람선 1,600엔)" },
+            { name: "하코다테산 로프웨이", hours: "10:00-22:00 (변동 가능)", fee: "1,800엔 (왕복)" },
+            { name: "고료카쿠 타워", hours: "09:00-18:00 (변동 가능)", fee: "1,200엔" },
+            { name: "우스잔 로프웨이", hours: "계절별 상이", fee: "1,800엔 (왕복)" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const itineraryContent = document.getElementById('itinerary-content');
+            itineraryData.forEach(dayData => {
+                const dayElement = document.createElement('div');
+                dayElement.id = `day-${dayData.day}`;
+                dayElement.className = 'scroll-mt-24';
+                dayElement.innerHTML = `
+                    <div class="card p-6 md:p-8">
+                        <h3 class="text-2xl font-bold mb-1">${dayData.day}일차: ${dayData.title}</h3>
+                        <p class="text-gray-500 mb-4">${dayData.date}</p>
+                        <p class="mb-6">${dayData.summary}</p>
+                        <div class="relative border-l-2 border-dashed border-gray-200 pl-8">
+                            ${dayData.timeline.map(item => `
+                                <div class="mb-6 relative timeline-item">
+                                    <div class="timeline-dot"></div>
+                                    <p class="font-bold text-lg text-[#D48C70]">${item.time}</p>
+                                    <p class="font-semibold text-gray-800 margin-left-30">${item.icon} ${item.activity}</p>
+                                    <p class="text-sm text-gray-600 margin-left-30">${item.details}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                itineraryContent.appendChild(dayElement);
+            });
+
+            const attractionsContainer = document.querySelector('#attractions .grid');
+            attractionsData.forEach(attraction => {
+                const attractionElement = document.createElement('div');
+                attractionElement.className = 'card p-6';
+                attractionElement.innerHTML = `
+                    <h4 class="font-bold text-lg">${attraction.name}</h4>
+                    <p class="text-sm mt-2">🕒 ${attraction.hours}</p>
+                    <p class="text-sm mt-1">💰 ${attraction.fee}</p>
+                `;
+                attractionsContainer.appendChild(attractionElement);
+            });
+
+            const dayNavButtons = document.querySelectorAll('.day-nav-btn');
+            dayNavButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    dayNavButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const dayId = btn.getAttribute('data-day');
+                    document.getElementById(`day-${dayId}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+
+            const transportChartCtx = document.getElementById('transportChart').getContext('2d');
+            new Chart(transportChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['개별 티켓 총합', 'JR 레일 패스 (5일권)'],
+                    datasets: [{
+                        label: '예상 비용 (엔)',
+                        data: [13340, 22000],
+                        backgroundColor: ['#7A9E7E', '#D48C70'],
+                        borderColor: ['#6A8E6E', '#C47C60'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'JR 이용 교통비 비교' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: value => `${value.toLocaleString()}엔` } }
+                    }
+                }
+            });
+
+            const budgetChartCtx = document.getElementById('budgetChart').getContext('2d');
+            let budgetChart;
+
+            const accommodationSlider = document.getElementById('accommodationSlider');
+            const foodSlider = document.getElementById('foodSlider');
+            const accommodationValue = document.getElementById('accommodationValue');
+            const foodValue = document.getElementById('foodValue');
+            const totalBudgetValue = document.getElementById('totalBudgetValue');
+            
+            const fixedCosts = {
+                transport: 13340,
+                localTransport: 1700,
+                attractions: 12600
+            };
+
+            function updateBudget() {
+                const accomCost = parseInt(accommodationSlider.value) * 6;
+                const foodCost = parseInt(foodSlider.value) * 7;
+                const totalFixed = fixedCosts.transport + fixedCosts.localTransport + fixedCosts.attractions;
+                const total = totalFixed + accomCost + foodCost;
+
+                accommodationValue.textContent = parseInt(accommodationSlider.value).toLocaleString();
+                foodValue.textContent = parseInt(foodSlider.value).toLocaleString();
+                totalBudgetValue.textContent = `${total.toLocaleString()}엔 ~`;
+
+                const chartData = {
+                    labels: ['장거리 교통', '지역 교통', '명소 입장료', '숙박 (6박)', '식비 (7일)'],
+                    datasets: [{
+                        data: [fixedCosts.transport, fixedCosts.localTransport, fixedCosts.attractions, accomCost, foodCost],
+                        backgroundColor: ['#6D8B74', '#A2B29F', '#D48C70', '#E5B299', '#F1DDBF'],
+                        hoverOffset: 4
+                    }]
+                };
+
+                if (budgetChart) {
+                    budgetChart.data = chartData;
+                    budgetChart.update();
+                } else {
+                    budgetChart = new Chart(budgetChartCtx, {
+                        type: 'doughnut',
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                title: { display: true, text: '예상 경비 구성' }
+                            }
+                        }
+                    });
+                }
+            }
+
+            accommodationSlider.addEventListener('input', updateBudget);
+            foodSlider.addEventListener('input', updateBudget);
+            updateBudget();
+        });
+    </script>
+
+</body>
+</html>
+�
