@@ -141,7 +141,7 @@
 
                 <div class="card p-6">
                     <h3 class="text-xl font-bold mb-4">🚆 교통 전략 분석</h3>
-                     <p class="mb-4 text-sm">이번 여정은 삿포로에서 하코다테로 남하하는 단방향 동선으로, JR 레일 패스 구매보다 개별 티켓 발권이 훨씬 경제적입니다. 아래 차트에서 비용 차이를 확인하세요.</p>
+                     <p class="mb-4 text-sm">이번 여정은 장거리 이동이 많지만, JR 레일 패스보다 개별 티켓 발권이 더 경제적일 수 있습니다. 아래 차트에서 비용을 비교해보고, 편리성과 비용을 고려하여 최적의 방법을 선택하세요.</p>
                     <div class="chart-container h-64">
                         <canvas id="transportChart"></canvas>
                     </div>
@@ -152,15 +152,15 @@
                     <p class="mb-4 text-sm">수확의 계절 홋카이도는 미식의 천국입니다. 여행 중 꼭 맛봐야 할 대표 음식들을 소개합니다.</p>
                     <div class="space-y-3">
                         <div>
-                            <p class="font-bold">징기스칸</p>
-                            <p class="text-xs text-gray-500">삿포로의 소울 푸드, 신선한 양고기 구이</p>
+                            <p class="font-bold">징기스칸 & 스프카레</p>
+                            <p class="text-xs text-gray-500">삿포로의 소울 푸드, 꼭 맛봐야 할 대표 메뉴</p>
                         </div>
                         <div>
                             <p class="font-bold">카이센동 (해산물 덮밥)</p>
                             <p class="text-xs text-gray-500">하코다테 아침 시장의 신선함이 담긴 한 그릇</p>
                         </div>
                         <div>
-                            <p class="font-bold">스시</p>
+                            <p class="font-bold">오타루 스시</p>
                             <p class="text-xs text-gray-500">항구 도시 오타루에서 맛보는 장인의 손맛</p>
                         </div>
                         <div>
@@ -195,20 +195,20 @@
         
         <section id="budget" class="mb-16 scroll-mt-24">
             <h2 class="text-3xl font-bold text-center mb-2 text-[#3C3633]">나만의 예산 플래너</h2>
-            <p class="text-center text-gray-600 mb-8">여행 경비를 시각적으로 분석하고, 직접 조정하며 나만의 예산을 계획해보세요. 숙박과 식비 슬라이더를 움직여 총 예상 경비의 변화를 확인할 수 있습니다.</p>
+            <p class="text-center text-gray-600 mb-8">여행 경비를 시각적으로 분석하고, 직접 조정하며 나만의 예산을 계획해보세요. 식비와 쇼핑 슬라이더를 움직여 총 예상 경비의 변화를 확인할 수 있습니다.</p>
             <div class="grid lg:grid-cols-2 gap-8 items-center">
                 <div class="card p-6">
                     <h3 class="text-xl font-bold mb-4">예상 경비 항목 (1인 기준)</h3>
                     <div class="space-y-4">
                         <div>
-                            <label for="accommodationSlider" class="block text-sm font-medium text-gray-700">숙박 (1박당)</label>
-                            <input id="accommodationSlider" type="range" min="5000" max="30000" value="15000" step="1000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                            <div class="text-right text-sm font-semibold text-[#D48C70]"><span id="accommodationValue">15,000</span>엔</div>
+                            <label for="foodSlider" class="block text-sm font-medium text-gray-700">식비 (1일당)</label>
+                            <input id="foodSlider" type="range" min="4000" max="12000" value="7000" step="500" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-right text-sm font-semibold text-[#D48C70]"><span id="foodValue">7,000</span>엔</div>
                         </div>
                         <div>
-                            <label for="foodSlider" class="block text-sm font-medium text-gray-700">식비 (1일당)</label>
-                            <input id="foodSlider" type="range" min="3000" max="10000" value="6500" step="500" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                            <div class="text-right text-sm font-semibold text-[#D48C70]"><span id="foodValue">6,500</span>엔</div>
+                            <label for="shoppingSlider" class="block text-sm font-medium text-gray-700">쇼핑 & 기타 (총액)</label>
+                            <input id="shoppingSlider" type="range" min="10000" max="100000" value="30000" step="5000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-right text-sm font-semibold text-[#D48C70]"><span id="shoppingValue">30,000</span>엔</div>
                         </div>
                     </div>
                     <div class="mt-6 pt-6 border-t">
@@ -246,89 +246,82 @@
     <script>
         const itineraryData = [
             {
-                day: 1,
-                date: "9/14 (일)",
-                title: "삿포로 도착 & 어텀 페스트",
-                summary: "신치토세 공항 도착 후 삿포로로 이동, 저녁에는 홋카이도 최대 미식 축제 '삿포로 어텀 페스트'에서 여행의 시작을 축하합니다.",
+                day: 1, date: "9/14 (일)", title: "삿포로 도착 & 첫인상",
+                summary: "인천에서 출발, 신치토세 공항을 통해 홋카이도에 첫발을 내딛습니다. 삿포로 시내로 이동해 숙소에 짐을 풀고 오도리 공원을 중심으로 가벼운 시내 관광을 시작합니다.",
                 timeline: [
-                    { time: "오후", icon: "✈️", activity: "신치토세 공항 도착 및 입국", details: "JR 쾌속 에어포트 열차로 삿포로역 이동 (약 40분, 1,150엔). 숙소 체크인." },
-                    { time: "저녁", icon: "🍜", activity: "삿포로 어텀 페스트 탐방", details: "오도리 공원에서 홋카이도 전역의 미식을 맛보며 저녁 식사. (입장 무료, 음식값 별도)" }
+                    { time: "12:20", icon: "✈️", activity: "인천 국제공항 (ICN) 출발", details: "" },
+                    { time: "15:00", icon: "🛬", activity: "삿포로 신치토세 공항 (CTS) 도착", details: "입국 수속 후 JR 쾌속 에어포트 탑승 준비" },
+                    { time: "17:00", icon: "🏨", activity: "삿포로 그랜드 호텔 체크인", details: "삿포로역에서 이동 후 체크인. (주소: Nishi 4-chome 1-jo Kita Chuo-ku)" },
+                    { time: "저녁", icon: "🌃", activity: "오도리 공원 & 삿포로 TV 타워", details: "삿포로 어텀 페스트 기간이라면 축제 분위기 만끽. TV 타워에 올라 야경 감상." }
                 ]
             },
             {
-                day: 2,
-                date: "9/15 (월)",
-                title: "비에이 & 후라노 일일 투어",
-                summary: "삿포로에서 출발하는 일일 버스 투어를 통해 홋카이도의 광활하고 아름다운 대자연의 정수를 만끽하는 날입니다.",
+                day: 2, date: "9/15 (월)", title: "비에이 & 후라노 대자연 투어",
+                summary: "하루를 온전히 투자해 홋카이도의 심장부, 비에이와 후라노의 광활한 자연을 만끽하는 날입니다. 사전 예약한 버스 투어로 편안하게 핵심 명소를 둘러봅니다.",
                 timeline: [
-                    { time: "오전", icon: "🚍", activity: "일일 버스 투어 시작", details: "삿포로역 근처에서 출발. (사전 예약 필수, 약 7,000~9,000엔)" },
-                    { time: "낮", icon: "🏞️", activity: "핵심 명소 탐방", details: "패치워크 로드, 사계채의 언덕, 청의 호수, 흰수염 폭포, 팜 도미타 등 방문." },
-                    { time: "저녁", icon: "🌃", activity: "삿포로 복귀 및 휴식", details: "약 12시간 투어 후 삿포로 도착. 스스키노 또는 어텀 페스트에서 저녁 식사." }
+                    { time: "오전", icon: "🚌", activity: "비에이/후라노 버스 투어 시작", details: "삿포로역 등 지정된 장소에서 출발. (한국에서 사전 예약 필수)" },
+                    { time: "종일", icon: "🏞️", activity: "주요 명소 탐방", details: "패치워크 로드, 청의 호수, 흰수염 폭포, 사계채의 언덕, 팜 도미타 등 투어 코스에 따라 방문." },
+                    { time: "저녁", icon: "🐑", activity: "삿포로 복귀 및 저녁 식사", details: "투어 종료 후 삿포로 도착. 스스키노에서 징기스칸, 스프카레 등 삿포로 명물 맛보기." }
                 ]
             },
             {
-                day: 3,
-                date: "9/16 (화)",
-                title: "오타루 당일치기 여행",
-                summary: "삿포로에서 가까운 항구 도시 오타루로 떠나 운하의 낭만과 유리 공예, 오르골의 멜로디에 흠뻑 빠져보는 하루입니다.",
+                day: 3, date: "9/16 (화)", title: "삿포로 & 오타루, 두 도시 이야기",
+                summary: "오전에는 삿포로 시내의 명소를 둘러보고, 오후에는 JR을 타고 낭만의 도시 오타루로 떠납니다. 해가 진 후 펼쳐지는 운하와 도시의 야경이 하이라이트입니다.",
                 timeline: [
-                    { time: "오전", icon: "🚆", activity: "오타루 이동 및 운하 산책", details: "JR 하코다테 본선 이용 (약 35분, 750엔). 오타루 운하 및 운하 크루즈 즐기기." },
-                    { time: "오후", icon: "🍣", activity: "사카이마치도리 & 스시", details: "기타이치 가라스, 오르골당 구경. '스시야도리'에서 신선한 스시로 점심 식사." },
-                    { time: "저녁", icon: "🌆", activity: "삿포로 복귀", details: "옛 테미야선 철길을 따라 역으로 이동 후 삿포로로 귀환. 저녁은 미소라멘 또는 스프카레 추천." }
+                    { time: "오전", icon: "🍺", activity: "삿포로 시내 탐방", details: "삿포로 맥주 박물관, 홋카이도 신궁 등 관심사에 맞춰 방문. 파르코 백화점에서 쇼핑." },
+                    { time: "15:00", icon: "➡️", activity: "오타루로 이동", details: "JR 하코다테 본선 이용 (약 40분 소요)." },
+                    { time: "오후", icon: "🎶", activity: "오타루 운하 및 오르골당", details: "오타루 오르골당에서 아름다운 멜로디 감상 후, 해 질 녘 운하 산책." },
+                    { time: "저녁", icon: "🌉", activity: "텐구야마 야경 감상", details: "로프웨이를 타고 텐구야마 전망대에서 오타루의 반짝이는 야경 감상 후 JR로 삿포로 복귀." }
                 ]
             },
             {
-                day: 4,
-                date: "9/17 (수)",
-                title: "도야호의 장엄함",
-                summary: "삿포로를 떠나 거대한 칼데라 호수 도야로 이동합니다. 웅장한 자연과 호수 위 불꽃놀이가 기다립니다.",
+                day: 4, date: "9/17 (수)", title: "노보리베츠, 온천에서의 휴식",
+                summary: "삿포로를 떠나 홋카이도 최고의 온천지 노보리베츠로 향합니다. 유황 내음 가득한 지옥계곡을 산책하고, 료칸에서 온천과 가이세키 요리를 즐기며 여유로운 시간을 보냅니다.",
                 timeline: [
-                    { time: "오전", icon: "➡️", activity: "도야로 이동", details: "JR 특급 호쿠토 탑승 (약 2시간, 6,690엔). 도야역에서 버스로 온천가 이동 후 호텔 체크인." },
-                    { time: "오후", icon: "🌋", activity: "화산 지형 탐험", details: "우스잔 로프웨이를 타고 활화산 정상에서 도야호의 파노라마 감상." },
-                    { time: "저녁", icon: "🎆", activity: "도야호 롱런 불꽃놀이 & 온천", details: "매일 밤 8시 45분, 호수 위에서 펼쳐지는 불꽃놀이 감상 (유람선 탑승 추천). 이후 온천에서 휴식." }
+                    { time: "오전", icon: "🚆", activity: "노보리베츠로 이동", details: "삿포로 그랜드 호텔 체크아웃 후 JR 특급열차 또는 고속버스로 이동 (약 1시간 30분)." },
+                    { time: "점심", icon: "🏨", activity: "오야도 기요미즈야 체크인", details: "노보리베츠 온천 버스터미널에서 이동 후 체크인. (주소: 173 Noboribetsu-Onsenmachi)" },
+                    { time: "오후", icon: "♨️", activity: "지옥계곡 (지고쿠다니) 산책", details: "모락모락 피어오르는 수증기와 유황 냄새를 느끼며 화산 활동의 흔적을 감상." },
+                    { time: "저녁", icon: "🍱", activity: "료칸에서의 만찬과 온천", details: "료칸에서 제공하는 정갈한 가이세키 요리를 맛보고, 따뜻한 온천에서 여행의 피로를 풉니다." }
                 ]
             },
             {
-                day: 5,
-                date: "9/18 (목)",
-                title: "하코다테와 백만 불짜리 야경",
-                summary: "홋카이도 남쪽 끝, 하코다테로 여정을 이어갑니다. 세계 3대 야경으로 꼽히는 하코다테산의 야경이 하이라이트입니다.",
+                day: 5, date: "9/18 (목)", title: "항구 도시 하코다테의 첫 만남",
+                summary: "홋카이도 남쪽 끝, 이국적인 항구 도시 하코다테로 여정을 이어갑니다. 붉은 벽돌 창고가 늘어선 베이 에어리어를 산책하며 하코다테의 첫인상을 느껴봅니다.",
                 timeline: [
-                    { time: "오전", icon: "♨️", activity: "도야호에서의 여유", details: "온천욕 또는 호숫가 산책 후 체크아웃. JR 도야역으로 이동." },
-                    { time: "오후", icon: "🚆", activity: "하코다테로 이동", details: "JR 특급 호쿠토 탑승 (약 1시간 50분, 5,150엔). 하코다테 도착 후 숙소 체크인." },
-                    { time: "저녁", icon: "🌉", activity: "하코다테산 야경", details: "일몰 30분 전 로프웨이로 정상 도착. '백만 불짜리 야경' 감상 후 베이 에어리어에서 저녁 식사." }
+                    { time: "오전", icon: "➡️", activity: "하코다테로 이동", details: "료칸 조식 후 체크아웃. 노보리베츠역에서 JR 특급열차로 이동 (약 2시간 30분)." },
+                    { time: "오후", icon: "🏨", activity: "호텔 에노에 체크인", details: "하코다테역 도착 후 호텔로 이동하여 체크인. (주소: 22-15 Otemachi)" },
+                    { time: "늦은 오후", icon: "🧱", activity: "가네모리 붉은 벽돌 창고군", details: "베이 에어리어를 따라 늘어선 붉은 벽돌 창고를 구경하며 쇼핑과 산책 즐기기." }
                 ]
             },
             {
-                day: 6,
-                date: "9/19 (금)",
-                title: "하코다테 역사 & 미식 탐방",
-                summary: "노면전차를 타고 하코다테의 상징들을 둘러봅니다. 활기찬 아침 시장, 별 모양 요새, 이국적인 언덕길을 모두 경험합니다.",
+                day: 6, date: "9/19 (금)", title: "하코다테 완전 정복",
+                summary: "활기찬 아침 시장에서 시작해 별 모양 요새 고료카쿠, 서양식 건물이 아름다운 모토마치를 거쳐, 세계 3대 야경으로 꼽히는 하코다테산 야경으로 하루를 마무리합니다.",
                 timeline: [
-                    { time: "오전", icon: "🦑", activity: "하코다테 아침 시장", details: "신선한 카이센동으로 아침 식사. 명물 '오징어 낚시' 체험." },
-                    { time: "오후", icon: "⭐", activity: "고료카쿠 공원 & 타워", details: "독특한 별 모양 요새 산책 및 타워 전망대에서 전경 감상." },
-                    { time: "늦은 오후", icon: "⛪", activity: "모토마치 언덕 산책", details: "이국적인 서양식 건축물들이 늘어선 언덕길을 따라 낭만적인 시간 보내기. (시덴 1일권 600엔 추천)" }
+                    { time: "오전", icon: "🦑", activity: "하코다테 아침 시장", details: "신선한 해산물 덮밥(카이센동)으로 아침 식사 및 시장 구경." },
+                    { time: "낮", icon: "⭐", activity: "고료카쿠 타워 & 공원", details: "독특한 별 모양 요새를 타워 전망대에서 한눈에 조망." },
+                    { time: "오후", icon: "⛪", activity: "모토마치 언덕 산책", details: "이국적인 교회와 구 공회당 등 역사적인 건물 사이를 여유롭게 걷기." },
+                    { time: "저녁", icon: "🌃", activity: "하코다테산 야경", details: "로프웨이를 타고 '세계 3대 야경'의 감동을 직접 체험." }
                 ]
             },
             {
-                day: 7,
-                date: "9/20 (토)",
-                title: "마지막 여운과 출국",
-                summary: "비행기 시간에 맞춰 하코다테에서의 마지막 시간을 보낸 후, 7일간의 추억을 안고 공항으로 이동합니다.",
+                day: 7, date: "9/20 (토)", title: "마지막 여운과 귀국",
+                summary: "하코다테에서의 마지막 오전 시간을 보낸 후, 6박 7일간의 추억을 안고 공항으로 이동하여 한국으로 돌아갑니다.",
                 timeline: [
-                    { time: "오전", icon: "🛍️", activity: "자유 시간", details: "아침 시장에서 기념품 구매, 하코다테 명물 시오라멘 맛보기 등 여유로운 시간." },
-                    { time: "출국", icon: "🛫", activity: "하코다테 공항으로 이동", details: "하코다테역 앞에서 공항 셔틀버스로 이동 (약 20분). 출국 수속." }
+                    { time: "오전", icon: "🛍️", activity: "자유 시간 및 체크아웃", details: "못 가본 곳 방문, 기념품 쇼핑 등 자유시간 후 호텔 체크아웃." },
+                    { time: "점심", icon: "➡️", activity: "하코다테 공항 (HKD)으로 이동", details: "점심 식사 후 셔틀버스를 이용해 공항으로 이동." },
+                    { time: "17:20", icon: "🛫", activity: "하코다테 공항 (HKD) 출발", details: "" },
+                    { time: "20:25", icon: "🛬", activity: "인천 국제공항 (ICN) 도착", details: "" }
                 ]
             }
         ];
 
         const attractionsData = [
-            { name: "삿포로 어텀 페스트", hours: "10:00-20:30 (변동 가능)", fee: "무료 입장 (음식값 별도)" },
-            { name: "비에이/후라노 투어", hours: "약 12시간 소요", fee: "약 7,000~9,000엔" },
-            { name: "도야호 불꽃놀이", hours: "20:45-21:05", fee: "무료 관람 (유람선 1,600엔)" },
-            { name: "하코다테산 로프웨이", hours: "10:00-22:00 (변동 가능)", fee: "1,800엔 (왕복)" },
-            { name: "고료카쿠 타워", hours: "09:00-18:00 (변동 가능)", fee: "1,200엔" },
-            { name: "우스잔 로프웨이", hours: "계절별 상이", fee: "1,800엔 (왕복)" }
+            { name: "삿포로 TV 타워", fee: "1,000엔" },
+            { name: "삿포로 맥주 박물관", fee: "무료 입장 (시음 유료)" },
+            { name: "텐구야마 로프웨이", fee: "1,800엔 (왕복)" },
+            { name: "고료카쿠 타워", fee: "1,200엔" },
+            { name: "하코다테산 로프웨이", fee: "1,800엔 (왕복)" },
+            { name: "비에이/후라노 투어", fee: "약 7,000~9,000엔" }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -363,7 +356,6 @@
                 attractionElement.className = 'card p-6';
                 attractionElement.innerHTML = `
                     <h4 class="font-bold text-lg">${attraction.name}</h4>
-                    <p class="text-sm mt-2">🕒 ${attraction.hours}</p>
                     <p class="text-sm mt-1">💰 ${attraction.fee}</p>
                 `;
                 attractionsContainer.appendChild(attractionElement);
@@ -383,10 +375,10 @@
             new Chart(transportChartCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['개별 티켓 총합', 'JR 레일 패스 (5일권)'],
+                    labels: ['개별 티켓 총합', '홋카이도 레일 패스 (5일권)'],
                     datasets: [{
                         label: '예상 비용 (엔)',
-                        data: [13340, 22000],
+                        data: [14650, 20000],
                         backgroundColor: ['#7A9E7E', '#D48C70'],
                         borderColor: ['#6A8E6E', '#C47C60'],
                         borderWidth: 1
@@ -397,7 +389,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        title: { display: true, text: 'JR 이용 교통비 비교' }
+                        title: { display: true, text: '주요 JR 이동 교통비 비교' }
                     },
                     scales: {
                         y: { beginAtZero: true, ticks: { callback: value => `${value.toLocaleString()}엔` } }
@@ -408,32 +400,32 @@
             const budgetChartCtx = document.getElementById('budgetChart').getContext('2d');
             let budgetChart;
 
-            const accommodationSlider = document.getElementById('accommodationSlider');
             const foodSlider = document.getElementById('foodSlider');
-            const accommodationValue = document.getElementById('accommodationValue');
+            const shoppingSlider = document.getElementById('shoppingSlider');
             const foodValue = document.getElementById('foodValue');
+            const shoppingValue = document.getElementById('shoppingValue');
             const totalBudgetValue = document.getElementById('totalBudgetValue');
             
             const fixedCosts = {
-                transport: 13340,
-                localTransport: 1700,
-                attractions: 12600
+                accommodation: 68833, // (539679+414128+285197)/2 / 9 (2인, 원->엔 환산)
+                transport: 14650,
+                toursAndAttractions: 17000 // (투어 8000 + 입장료 9000)
             };
 
             function updateBudget() {
-                const accomCost = parseInt(accommodationSlider.value) * 6;
                 const foodCost = parseInt(foodSlider.value) * 7;
-                const totalFixed = fixedCosts.transport + fixedCosts.localTransport + fixedCosts.attractions;
-                const total = totalFixed + accomCost + foodCost;
+                const shoppingCost = parseInt(shoppingSlider.value);
+                const totalFixed = fixedCosts.accommodation + fixedCosts.transport + fixedCosts.toursAndAttractions;
+                const total = totalFixed + foodCost + shoppingCost;
 
-                accommodationValue.textContent = parseInt(accommodationSlider.value).toLocaleString();
                 foodValue.textContent = parseInt(foodSlider.value).toLocaleString();
+                shoppingValue.textContent = shoppingCost.toLocaleString();
                 totalBudgetValue.textContent = `${total.toLocaleString()}엔 ~`;
 
                 const chartData = {
-                    labels: ['장거리 교통', '지역 교통', '명소 입장료', '숙박 (6박)', '식비 (7일)'],
+                    labels: ['숙박', '장거리 교통', '투어/입장료', '식비', '쇼핑/기타'],
                     datasets: [{
-                        data: [fixedCosts.transport, fixedCosts.localTransport, fixedCosts.attractions, accomCost, foodCost],
+                        data: [fixedCosts.accommodation, fixedCosts.transport, fixedCosts.toursAndAttractions, foodCost, shoppingCost],
                         backgroundColor: ['#6D8B74', '#A2B29F', '#D48C70', '#E5B299', '#F1DDBF'],
                         hoverOffset: 4
                     }]
@@ -451,19 +443,18 @@
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: { position: 'bottom' },
-                                title: { display: true, text: '예상 경비 구성' }
+                                title: { display: true, text: '예상 경비 구성 (1인)' }
                             }
                         }
                     });
                 }
             }
 
-            accommodationSlider.addEventListener('input', updateBudget);
             foodSlider.addEventListener('input', updateBudget);
+            shoppingSlider.addEventListener('input', updateBudget);
             updateBudget();
         });
     </script>
 
 </body>
 </html>
-�
